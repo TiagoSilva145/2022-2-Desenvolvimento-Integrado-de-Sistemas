@@ -1,0 +1,3 @@
+sudo apt-get install libgfortran5
+
+sudo apt-get install jblas
