@@ -4,6 +4,7 @@
  */
 package testeblas;
 
+import com.mycompany.testecsv.CsvParser;
 import org.jblas.FloatMatrix;
 import java.io.*;
 import java.util.*;
@@ -189,15 +190,15 @@ public class TesteBlas {
         String caminho = "dados-teste/";
         
         System.out.print("Vetor  a: ");
-        FloatMatrix a = le_csv(caminho+"a.csv");
+        FloatMatrix a = CsvParser.readFloatMatrixFromCsvFile(caminho+"a.csv");
         a.print();
         
         System.out.print("Matriz M: ");
-        FloatMatrix m = le_csv(caminho+"M.csv");
+        FloatMatrix m = CsvParser.readFloatMatrixFromCsvFile(caminho+"M.csv");
         m.print();
         
         System.out.print("Matriz N: ");
-        FloatMatrix n = le_csv(caminho+"N.csv");
+        FloatMatrix n = CsvParser.readFloatMatrixFromCsvFile(caminho+"N.csv");
         n.print();
         
         System.out.println("");
@@ -206,12 +207,12 @@ public class TesteBlas {
         
         System.out.println("");
         System.out.println("MN: ");
-        System.out.println("Espera-se " + le_csv(caminho+"MN.csv"));
+        System.out.println("Espera-se " + CsvParser.readFloatMatrixFromCsvFile(caminho+"MN.csv"));
         System.out.println("Temos:    " + m.mmul(n));
         
         System.out.println("");
         System.out.println("aM: ");
-        System.out.println("Espera-se " + le_csv(caminho+"aM.csv"));
+        System.out.println("Espera-se " + CsvParser.readFloatMatrixFromCsvFile(caminho+"aM.csv"));
         System.out.println("Temos:    " + a.mmul(m));
         
         try {
@@ -223,7 +224,7 @@ public class TesteBlas {
             System.out.println("Erro: " + e);
         }
         
-        cgne("matrizModelo/modelo1/", 50816, 3600, 60, 794, 64);
+        //cgne("matrizModelo/modelo1/", 50816, 3600, 60, 794, 64);
     }
     
 }

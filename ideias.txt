@@ -1,0 +1,5 @@
+Ideias para o projeto
+
+Monitorar a cpu e memória com o sigarAPI. Deixar a cpu e memória em 80%. ter label para deixar o estado da cpu e memória como crítico, normal, baixo. Caso a cpu estaja em crítico, colocar thread_sleep entre cada operação. Caso a memória esteja em crítico, guardar resultados em disco e acelerar o garbage collector. Estimar a quantidade de memória consumida para cada imagem processada.
+
+Deixar o processo ou threads que vão processar imagens com baixa prioridade e o processo que cuida do enfileiramento com prioridade normal.
