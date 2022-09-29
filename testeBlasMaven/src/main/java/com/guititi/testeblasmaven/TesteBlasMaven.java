@@ -118,7 +118,7 @@ public class TesteBlasMaven {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
         FloatMatrix modeloTrans = modelo.transpose();
         
-        float c = (modelo.mmul(modeloTrans)).norm2();
+        float c = (modelo.mmul(modeloTrans)).norm1();
         
         //pra que serve o c?
         //g é puro ou precisa de ganho de sinal?
