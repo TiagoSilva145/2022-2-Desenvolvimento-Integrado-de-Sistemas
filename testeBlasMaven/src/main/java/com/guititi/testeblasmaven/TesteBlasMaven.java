@@ -5,8 +5,10 @@
 package com.guititi.testeblasmaven;
 
 import com.guititi.testeblasmaven.CsvParser;
+import java.awt.image.BufferedImage;
 import org.jblas.FloatMatrix;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -15,68 +17,16 @@ import java.util.*;
  */
 public class TesteBlasMaven {
 
-    /**
-     * Le o csv e coloca os valores em uma FloatMatrix
-     * @param caminho_arquivo caminho do nome do arquivo
-     * @return Uma FloatmMtrix correspondente aos conteudos do csv
-     */
-    static FloatMatrix le_csv(String caminho_arquivo)
-    {
-        FloatMatrix matrix = null;
-        try {
-            Scanner sc = new Scanner(new File(caminho_arquivo));
-            sc.useDelimiter(";");
-            
-            List<Float> list_Floats = new ArrayList<Float>();
-            while(sc.hasNext())
-            {
-                String aux = sc.next();
-                try {
-                    list_Floats.add(Float.parseFloat(aux));
-                    
-                    if(aux.endsWith("\n"))
-                    {
-                        if(matrix != null)
-                            matrix = FloatMatrix.concatHorizontally(matrix, new FloatMatrix(list_Floats));
-                        else
-                            matrix = new FloatMatrix(list_Floats);
-                            
-                        list_Floats.clear();
-                    }
-                    
-                } catch (Exception e) {
-                    String[] dois_floats = aux.split("\n");
-                    list_Floats.add(Float.parseFloat(dois_floats[0]));
-                    
-                    if(matrix != null)
-                    {
-                        matrix = FloatMatrix.concatHorizontally(matrix, new FloatMatrix(list_Floats));
-                    }
-                    else
-                    {
-                        matrix = new FloatMatrix(list_Floats);
-                    }
-                    
-                    list_Floats.clear();
-                    list_Floats.add(Float.parseFloat(dois_floats[1]));
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        
-        return matrix.transpose();
-    }
     
     static float calc_alfa(FloatMatrix r, FloatMatrix p)
     {
-        FloatMatrix aux = r.transpose();
-        aux = aux.mmul(r);
+        FloatMatrix rtrans = r.transpose();
+        FloatMatrix ptrans = p.transpose();
         
-        FloatMatrix aux2 = p.transpose();
-        aux2 = aux2.mmul(p);
+        float num = rtrans.dot(r);
+        float den = ptrans.dot(p);
         
-        return aux.get(0,0) / aux2.get(0,0);
+        return num/den;
     }
     
     static FloatMatrix calc_f1(FloatMatrix f, FloatMatrix p, float alfa)
@@ -94,13 +44,13 @@ public class TesteBlasMaven {
     
     static float calc_beta(FloatMatrix r1, FloatMatrix r)
     {
-        FloatMatrix aux = r1.transpose();
-        aux = aux.mmul(r1);
+        FloatMatrix rtrans = r.transpose();
+        FloatMatrix r1trans = r1.transpose();
         
-        FloatMatrix aux2 = r.transpose();
-        aux2 = aux2.mmul(r);
+        float num = r1trans.dot(r1);
+        float den = rtrans.dot(r);
         
-        return aux.get(0,0) / aux2.get(0,0);
+        return num/den;
     }
     
     static FloatMatrix calc_p1(FloatMatrix modelo, FloatMatrix r1, FloatMatrix p, float beta)
@@ -113,50 +63,83 @@ public class TesteBlasMaven {
         return aux.add(aux2);
     }
     
-    static void cgne(String caminho_arquivo, int linhas, int colunas, int lado, int s, int n)
+    static FloatMatrix cgne(String caminho_arquivo, int linhas, int colunas, int lado, int s, int n)
     {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
         FloatMatrix modeloTrans = modelo.transpose();
         
-        float c = (modelo.mmul(modeloTrans)).norm1();
+        /*System.out.println("Modelo: linhas e colunas: " + modelo.rows + " " + modelo.columns);
+        System.out.println("Modelo trans: linhas e colunas: " + modeloTrans.rows + " " + modeloTrans.columns);
+        
+        try {  
+            modeloTrans.mmul(modelo);
+        } catch (Exception e) {
+            System.out.println("-------- ERRO --------: "+e);
+        }*/
+        
+        float c = (modeloTrans.mmul(modelo)).norm1();
         
         //pra que serve o c?
         //g é puro ou precisa de ganho de sinal?
         
-        FloatMatrix f = new FloatMatrix().zeros(linhas, colunas);
-        FloatMatrix r = le_csv(caminho_arquivo+"G-1.csv");
+        FloatMatrix f = new FloatMatrix().zeros(lado * lado, 1);
+        FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-1.csv", ',');
         FloatMatrix p = modeloTrans.mmul(r);
         
        float erro = 1;
        
-       while(erro > 0.0001)
+       //while(erro > 0.0000001)
+       for(int i = 0; i < 1; i++)
        {
+           //System.out.println("a");
            //float alfa = ((r0.transpose()).mmul(r0)).get(0,0) / ((p0.transpose()).mmul(p1)).get(0,0);
            float alfa = calc_alfa(r, p);
            
            //FloatMatrix f1 = f0.add(p0.mul(alfa));
-           FloatMatrix f1 = calc_f1(f, p, alfa);
+           f = calc_f1(f, p, alfa);
            
            //FloatMatrix r1 = r0.sub((modelo.mmul(p0)).mul(alfa));
            FloatMatrix r1 = calc_r1(r, modelo, p, alfa);
            
+           erro = r1.norm2() - r.norm2();
+           //System.out.println("Norm r1: " + r1.norm2());
+           //System.out.println("Norm r: " + r.norm2());
+           erro = Math.abs(erro);
+           System.out.println("Erro: " + erro);
+           System.out.println("");
+           
            float beta = calc_beta(r1, r);
            
-           FloatMatrix p1 = calc_p1(modelo, r1, p, beta);
-           
-           erro = r1.norm2() - r.norm2();
+           p = calc_p1(modelo, r1, p, beta);
+           r = r1;
        }
        
-        System.out.println("\n\n\nAcabou!!!");
+        System.out.println("Acabou!!!");
+        f.print();
+        return f;
     }
+    
+    /*static void exporta_imagem(FloatMatrix matrix, String nome)
+    {
+        BufferedImage imagem;
+        
+        for(int i = 0; i < matrix.rows; i++)
+        {
+            for(int j = 0; j < matrix.columns; j++)
+            {
+                float a = matrix.get(i,j);
+                Color cor = newColor(a,a,a);
+                
+            }
+        }
+    }*/
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
         
-        FloatMatrix m1 = new FloatMatrix(new float[][] {{0,1}, {2,3}});
+        /*FloatMatrix m1 = new FloatMatrix(new float[][] {{0,1}, {2,3}});
         FloatMatrix m2 = new FloatMatrix(new float[][] {{1,2}, {3,4}});
         FloatMatrix m3 = new FloatMatrix(new float[][] {{1},{2}});
         FloatMatrix m4 = new FloatMatrix(new float[][] {{1,2}});
@@ -190,7 +173,12 @@ public class TesteBlasMaven {
         String caminho = "dados-teste/";
         
         System.out.print("Vetor  a: ");
-        FloatMatrix a = CsvParser.readFloatMatrixFromCsvFile(caminho+"a.csv", ';');
+        FloatMatrix a = CsvParser.readFloatMatrixFromCsvFile(caminho+"a.csv", ',');
+        
+        DecimalFormat df = new DecimalFormat();
+        df. setMaximumFractionDigits(20);
+        System.out.println("");
+        System.out.println(df. format(a.get(0,0)));
         
         a.print();
         
@@ -223,9 +211,15 @@ public class TesteBlasMaven {
             System.out.println("Temos:    " + m.mmul(a));
         } catch (Exception e) {
             System.out.println("Erro: " + e);
-        }
+        }*/
         
-        cgne("matrizModelo/modelo1/", 50816, 3600, 60, 794, 64);
+        /*
+        String caminho_arquivo = "matrizModelo/modelo1/";
+        cgne(caminho_arquivo, 50816, 3600, 60, 794, 64);
+        */
+        
+        String caminho_arquivo = "matrizModelo/modelo2/";
+        FloatMatrix imagem = cgne(caminho_arquivo, 27904, 900, 30, 436, 64);
     }
     
 }
