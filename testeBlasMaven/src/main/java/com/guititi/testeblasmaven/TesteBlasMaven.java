@@ -5,11 +5,13 @@
 package com.guititi.testeblasmaven;
 
 import com.guititi.testeblasmaven.CsvParser;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import org.jblas.FloatMatrix;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -17,7 +19,7 @@ import java.util.*;
  */
 public class TesteBlasMaven {
 
-    
+    /*
     static float calc_alfa(FloatMatrix r, FloatMatrix p)
     {
         FloatMatrix rtrans = r.transpose();
@@ -62,164 +64,117 @@ public class TesteBlasMaven {
         
         return aux.add(aux2);
     }
+    */
     
-    static FloatMatrix cgne(String caminho_arquivo, int linhas, int colunas, int lado, int s, int n)
+    /**
+     * Aplica o algoritmo cgne
+     * @param caminho_arquivo caminho para os arquivos base
+     * @param lado lado da imagem
+     * @param s S para o ganho de sinal
+     * @param n N para o ganho de sinal
+     * @return 
+     */
+    static FloatMatrix cgne(String caminho_arquivo, int lado, int s, int n)
     {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
-        FloatMatrix modeloTrans = modelo.transpose();
         
-        /*System.out.println("Modelo: linhas e colunas: " + modelo.rows + " " + modelo.columns);
-        System.out.println("Modelo trans: linhas e colunas: " + modeloTrans.rows + " " + modeloTrans.columns);
         
-        try {  
-            modeloTrans.mmul(modelo);
-        } catch (Exception e) {
-            System.out.println("-------- ERRO --------: "+e);
-        }*/
-        
-        float c = (modeloTrans.mmul(modelo)).norm1();
-        
-        //pra que serve o c?
-        //g é puro ou precisa de ganho de sinal?
-        
-        FloatMatrix f = new FloatMatrix().zeros(lado * lado, 1);
-        FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-1.csv", ',');
-        FloatMatrix p = modeloTrans.mmul(r);
+        FloatMatrix f = new FloatMatrix().zeros(1, lado * lado);
+        FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-2.csv", ',');
+        FloatMatrix p = (modelo.transpose()).mmul(r);
         
        float erro = 1;
        
-       //while(erro > 0.0000001)
-       for(int i = 0; i < 1; i++)
+       while(erro > 0.0001)
+       //for(int i = 0; i < 100; i++)
        {
-           //System.out.println("a");
-           //float alfa = ((r0.transpose()).mmul(r0)).get(0,0) / ((p0.transpose()).mmul(p1)).get(0,0);
-           float alfa = calc_alfa(r, p);
-           
-           //FloatMatrix f1 = f0.add(p0.mul(alfa));
-           f = calc_f1(f, p, alfa);
-           
-           //FloatMatrix r1 = r0.sub((modelo.mmul(p0)).mul(alfa));
-           FloatMatrix r1 = calc_r1(r, modelo, p, alfa);
+           float alfa = ((r.transpose()).dot(r))/((p.transpose()).dot(p));
+           f = f.add(p.mmul(alfa));
+           //FloatMatrix r1 = r.sub((modelo.mmul(p)).mul(alfa));
+           FloatMatrix r1 = r.sub((modelo.mul(alfa)).mmul(p));
            
            erro = r1.norm2() - r.norm2();
-           //System.out.println("Norm r1: " + r1.norm2());
-           //System.out.println("Norm r: " + r.norm2());
            erro = Math.abs(erro);
-           System.out.println("Erro: " + erro);
-           System.out.println("");
            
+           float beta = ((r1.transpose()).dot(r1))/((r.transpose()).dot(r));
+           p = ((modelo.transpose()).mmul(r1)).add(p.mul(beta));
+           r = r1;
+           
+           
+           /*
+           float alfa = calc_alfa(r, p);
+           f = calc_f1(f, p, alfa);
+           FloatMatrix r1 = calc_r1(r, modelo, p, alfa);
            float beta = calc_beta(r1, r);
-           
            p = calc_p1(modelo, r1, p, beta);
            r = r1;
+           */
+           
        }
        
-        System.out.println("Acabou!!!");
-        f.print();
         return f;
     }
     
-    /*static void exporta_imagem(FloatMatrix matrix, String nome)
+    
+    /**
+     * Normaliza a matriz de float para uma matriz no intervalo [0,255]
+     * @param matriz um vetor do tipo v[lin*col]
+     * @param lin quantidade de linhas da matriz
+     * @param col quantidade de colunas da matriz
+     * @return uma matriz m[lin][col] normalizada
+     */
+    static FloatMatrix normaliza(FloatMatrix matriz, int lin, int col)
     {
-        BufferedImage imagem;
+        float min = matriz.min();
+        float max = matriz.max();
+        float dist = max - min;
         
-        for(int i = 0; i < matrix.rows; i++)
-        {
-            for(int j = 0; j < matrix.columns; j++)
+        FloatMatrix m = new FloatMatrix().zeros(lin, col);
+        
+        for(int i = 0; i < lin; i++)
+            for(int j = 0; j < col; j++)
+                m.put(i, j, ((matriz.get(i*lin + j)) - min) / dist * 255);
+        
+        return m;
+    }
+    
+    /**
+     * Exporta a imagem em greyscale
+     * @param matriz a matriz da imagem (com valores [0,255])
+     * @param nome nome do arquivo da imagem que sera criado
+     * @param lin quantidade de linhas da matriz
+     * @param col quantidade de colunas da matria
+     */
+    static void exporta_imagem(FloatMatrix matriz, String nome, int lin, int col)
+    {
+        BufferedImage imagem = new BufferedImage(lin, col, BufferedImage.TYPE_BYTE_GRAY);
+        
+        for(int i = 0; i < lin; i++)
+            for(int j = 0; j < col; j++)
             {
-                float a = matrix.get(i,j);
-                Color cor = newColor(a,a,a);
-                
+                int elem = (int) matriz.get(i,j);
+                Color cor = new Color(elem,elem,elem);
+                imagem.setRGB(i, j, cor.getRGB());
             }
+        
+        File arq = new File("./"+nome);
+        try {
+            ImageIO.write(imagem, "jpg", arq);
+        } catch (Exception e) {
+            System.out.println("Erro na gravacao da imagem: " + e);
         }
-    }*/
+    }
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         
-        /*FloatMatrix m1 = new FloatMatrix(new float[][] {{0,1}, {2,3}});
-        FloatMatrix m2 = new FloatMatrix(new float[][] {{1,2}, {3,4}});
-        FloatMatrix m3 = new FloatMatrix(new float[][] {{1},{2}});
-        FloatMatrix m4 = new FloatMatrix(new float[][] {{1,2}});
-        
-        System.out.println("Matrizes:");
-        m1.print();
-        m2.print();
-        m3.print();
-        m4.print();
-        System.out.println("");
-        
-        
-        System.out.println("Multiplicando m1 * m2:");
-        System.out.println("Espera-se: [3,4,11,16]");
-        System.out.println(m1.mmul(m2));
-        System.out.println("");
-        
-        System.out.println("Multiplicando m1 * m3");
-        System.out.println("Espera-se: [2,8]");
-        System.out.println(m1.mmul(m3));
-        System.out.println("");
-        
-        System.out.println("Multiplicando m4 * m1");
-        System.out.println("Espera-se: [4,7]");
-        System.out.println(m4.mmul(m1));
-        System.out.println("");
-        
-        ////////----------------------------------------------//////////
-        System.out.println("Testando com dados do moodle:");
-        
-        String caminho = "dados-teste/";
-        
-        System.out.print("Vetor  a: ");
-        FloatMatrix a = CsvParser.readFloatMatrixFromCsvFile(caminho+"a.csv", ',');
-        
-        DecimalFormat df = new DecimalFormat();
-        df. setMaximumFractionDigits(20);
-        System.out.println("");
-        System.out.println(df. format(a.get(0,0)));
-        
-        a.print();
-        
-        System.out.print("Matriz M: ");
-        FloatMatrix m = CsvParser.readFloatMatrixFromCsvFile(caminho+"M.csv", ';');
-        m.print();
-        
-        System.out.print("Matriz N: ");
-        FloatMatrix n = CsvParser.readFloatMatrixFromCsvFile(caminho+"N.csv", ';');
-        n.print();
-        
-        System.out.println("");
-        
-        System.out.println("Operacoes: ");
-        
-        System.out.println("");
-        System.out.println("MN: ");
-        System.out.println("Espera-se " + CsvParser.readFloatMatrixFromCsvFile(caminho+"MN.csv", ';'));
-        System.out.println("Temos:    " + m.mmul(n));
-        
-        System.out.println("");
-        System.out.println("aM: ");
-        System.out.println("Espera-se " + CsvParser.readFloatMatrixFromCsvFile(caminho+"aM.csv", ';'));
-        System.out.println("Temos:    " + a.mmul(m));
-        
-        try {
-            System.out.println("");
-            System.out.println("Ma: ");
-            System.out.println("Espera-se erro");
-            System.out.println("Temos:    " + m.mmul(a));
-        } catch (Exception e) {
-            System.out.println("Erro: " + e);
-        }*/
-        
-        /*
-        String caminho_arquivo = "matrizModelo/modelo1/";
-        cgne(caminho_arquivo, 50816, 3600, 60, 794, 64);
-        */
-        
         String caminho_arquivo = "matrizModelo/modelo2/";
-        FloatMatrix imagem = cgne(caminho_arquivo, 27904, 900, 30, 436, 64);
+        FloatMatrix imagem = cgne(caminho_arquivo, 30, 436, 64);
+        FloatMatrix norm = normaliza(imagem, 30, 30);
+        exporta_imagem(norm, "teste", 30, 30);
+        
     }
     
 }
