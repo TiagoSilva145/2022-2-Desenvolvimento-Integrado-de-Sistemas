@@ -78,7 +78,6 @@ public class TesteBlasMaven {
     {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
         
-        
         FloatMatrix f = new FloatMatrix().zeros(1, lado * lado);
         FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-2.csv", ',');
         FloatMatrix p = (modelo.transpose()).mmul(r);
@@ -115,6 +114,44 @@ public class TesteBlasMaven {
         return f;
     }
     
+    static FloatMatrix cgnr(String caminho_arquivo, int lado, int s, int n)
+    {
+        FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
+        
+        FloatMatrix f = new FloatMatrix().zeros(1, lado * lado);
+        FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-2.csv", ',');
+        FloatMatrix z = (modelo.transpose()).mmul(r);
+        FloatMatrix p = z;
+        
+       float erro = 1;
+       
+       while(erro > 0.0001)
+       {
+           FloatMatrix w = modelo.mmul(p);
+           
+           //-------------------- pode dar errado float pra double
+           float alfa = (float)(Math.pow(z.norm2(), 2)/Math.pow(w.norm2(), 2));
+           //---------------------checar aqui caso erro
+           f = f.add(p.mul(alfa));
+           FloatMatrix r1 = r.sub(w.mul(alfa));
+           
+           erro = r1.norm2() - r.norm2();
+           erro = Math.abs(erro);
+           
+           FloatMatrix z1 = (modelo.transpose()).mmul(r1);
+           
+           //-------------------- pode dar errado float pra double
+           float beta = (float)(Math.pow(z1.norm2(), 2)/Math.pow(z.norm2(), 2));
+           //---------------------checar aqui caso erro
+           
+           p = z1.add(p.mul(beta));
+           
+           z = z1;
+           r = r1;
+       }
+       
+       return f;
+    }
     
     /**
      * Normaliza a matriz de float para uma matriz no intervalo [0,255]
@@ -171,7 +208,8 @@ public class TesteBlasMaven {
     public static void main(String[] args) {
         
         String caminho_arquivo = "matrizModelo/modelo2/";
-        FloatMatrix imagem = cgne(caminho_arquivo, 30, 436, 64);
+        //FloatMatrix imagem = cgne(caminho_arquivo, 30, 436, 64);
+        FloatMatrix imagem = cgnr(caminho_arquivo, 30, 436, 64);
         FloatMatrix norm = normaliza(imagem, 30, 30);
         exporta_imagem(norm, "teste", 30, 30);
         
