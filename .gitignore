@@ -8,3 +8,4 @@ nbdist/
 .nb-gradle/
 /testeBlasMaven/target/
 testeBlasMaven/matrizModelo/*
+*.csv
