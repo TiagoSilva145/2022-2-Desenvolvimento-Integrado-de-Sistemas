@@ -78,7 +78,7 @@ public class TesteBlasMaven {
     {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
         
-        FloatMatrix f = new FloatMatrix().zeros(1, lado * lado);
+        FloatMatrix f = new FloatMatrix().zeros(lado * lado, 1);
         FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-2.csv", ',');
         FloatMatrix p = (modelo.transpose()).mmul(r);
         
@@ -118,7 +118,7 @@ public class TesteBlasMaven {
     {
         FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
         
-        FloatMatrix f = new FloatMatrix().zeros(1, lado * lado);
+        FloatMatrix f = new FloatMatrix().zeros(lado * lado, 1);
         FloatMatrix r = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"G-2.csv", ',');
         FloatMatrix z = (modelo.transpose()).mmul(r);
         FloatMatrix p = z;
