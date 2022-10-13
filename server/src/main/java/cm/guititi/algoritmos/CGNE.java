@@ -14,6 +14,7 @@ import org.jblas.FloatMatrix;
  */
 public class CGNE {
     public static AlgorithmResult run(FloatMatrix model, int size, int s, int n, FloatMatrix g) {
+        System.out.println("Executando CGNE");
         var result = new AlgorithmResult();
         
         FloatMatrix f = new FloatMatrix().zeros(1, size * size);
@@ -48,7 +49,7 @@ public class CGNE {
            
            result.iterNum++;
        }
-       
+       System.out.println("Finalizado CGNE");
        result.image = f;
        return result;
     }

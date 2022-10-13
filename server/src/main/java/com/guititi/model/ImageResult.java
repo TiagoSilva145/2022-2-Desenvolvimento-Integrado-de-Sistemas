@@ -5,6 +5,7 @@
 package com.guititi.model;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -22,9 +23,9 @@ public class ImageResult {
     public String user;
     public String alg;
     public String imagePath;
-    public LocalDateTime startTime;
-    public LocalDateTime finishTime;
+    public Date startTime;
+    public Date finishTime;
     public int ImageSize;
     public int IterNum;
-    public int elapsedSeconds;
+    public long elapsedSeconds;
 }

@@ -8,6 +8,7 @@ import cm.guititi.algoritmos.CGNE;
 import cm.guititi.algoritmos.CGNR;
 import cm.guititi.algoritmos.Util;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 import org.jblas.FloatMatrix;
 
@@ -29,10 +30,12 @@ public class QueueRequest {
     public ImageRequest data;
     public ImageResult result;
     
-    private ImageResult threadFunc() {
+    private ImageResult threadFunc() {  
         result = new ImageResult(data);
         result.imageId = requestId.toString();
-        result.startTime = LocalDateTime.now();
+        result.startTime = new Date();
+        
+        System.out.println("Executando requisição " + result.user + "-" + result.imageId);
         
         String caminho = "matrizModelo/H-"+data.model+".csv";
         FloatMatrix model = CsvParser.readFloatMatrixFromCsvFile(caminho, ',');
@@ -46,11 +49,15 @@ public class QueueRequest {
         
         result.IterNum = algResult.iterNum;
         
-        FloatMatrix norm = Util.normaliza(algResult.image, 30, 30);
-        result.imagePath = data.userId + "-" + result.imageId;
-        Util.exporta_imagem(norm, result.imagePath, 30, 30);
+        FloatMatrix norm = Util.normaliza(algResult.image, data.imageSize, data.imageSize);
+        result.imagePath = data.userId + "-" + result.imageId + ".jpg";
+        Util.exporta_imagem(norm, result.imagePath, data.imageSize, data.imageSize);
         
-        result.finishTime = LocalDateTime.now();
+        result.finishTime = new Date();
+        result.elapsedSeconds = (result.finishTime.getTime() - result.startTime.getTime()) / 1000;
+        System.out.println("Finalizou requisição " + result.user + "-" + result.imageId);
+        model = null;
+        System.gc();
         
         return result;
     } 

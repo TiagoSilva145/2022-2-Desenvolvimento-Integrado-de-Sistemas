@@ -17,6 +17,7 @@ import org.jblas.FloatMatrix;
 
 public class CsvParser {
     public static FloatMatrix readFloatMatrixFromCsvFile(String matrixName, char separator) {
+        System.out.println("Carregando modelo " + matrixName);
         FloatMatrix matrix = null;
         List<float[]> matrixLines = new LinkedList<>();
         
@@ -51,6 +52,7 @@ public class CsvParser {
         }
         
         matrix = new FloatMatrix(grouped);
+        System.out.println("Carregado modelo " + matrixName);
         return matrix;
     }
 }

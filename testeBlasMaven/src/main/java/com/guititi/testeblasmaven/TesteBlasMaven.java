@@ -209,9 +209,9 @@ public class TesteBlasMaven {
         
         String caminho_arquivo = "matrizModelo/";
         //FloatMatrix imagem = cgne(caminho_arquivo, 30, 436, 64);
-        FloatMatrix imagem = cgnr(caminho_arquivo, 30, 436, 64);
-        FloatMatrix norm = normaliza(imagem, 30, 30);
-        exporta_imagem(norm, "teste", 30, 30);
+        FloatMatrix imagem = cgnr(caminho_arquivo, 60, 436, 64);
+        FloatMatrix norm = normaliza(imagem, 60, 60);
+        exporta_imagem(norm, "teste", 60, 60);
         
     }
     

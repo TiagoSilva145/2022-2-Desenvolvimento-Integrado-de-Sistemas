@@ -36,7 +36,7 @@ public class MonitorService {
         Monitoramento m = getStats();
         
         if(m.MemoryUsagePercent > 0.9)
-            return false;
+            return true;
         
         return true;
     }

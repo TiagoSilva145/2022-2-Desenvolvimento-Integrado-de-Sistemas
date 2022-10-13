@@ -17,6 +17,7 @@ import org.jblas.FloatMatrix;
 public class Util {
     public static FloatMatrix normaliza(FloatMatrix matriz, int lin, int col)
     {
+        System.out.println("Normalizando matriz");
         float min = matriz.min();
         float max = matriz.max();
         float dist = max - min;
@@ -32,6 +33,7 @@ public class Util {
     
     public static void exporta_imagem(FloatMatrix matriz, String nome, int lin, int col)
     {
+        System.out.println("Exportando imagem");
         BufferedImage imagem = new BufferedImage(lin, col, BufferedImage.TYPE_BYTE_GRAY);
         
         for(int i = 0; i < lin; i++)
@@ -48,5 +50,6 @@ public class Util {
         } catch (Exception e) {
             System.out.println("Erro na gravacao da imagem: " + e);
         }
+        System.out.println("Imagem exportado");
     }
 }
