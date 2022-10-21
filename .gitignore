@@ -9,3 +9,4 @@ nbdist/
 /testeBlasMaven/target/
 testeBlasMaven/matrizModelo/*
 *.csv
+/client/target/

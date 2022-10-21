@@ -14,7 +14,6 @@ public class ImageRequest {
     public String userId;
     public int model;
     public int alg;
-    public AlgorithmEnum algorithm;
     public int imageSize;
     public int sampleLenght;
     public int sensorNum;

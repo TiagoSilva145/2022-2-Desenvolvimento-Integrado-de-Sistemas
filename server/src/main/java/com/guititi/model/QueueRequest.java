@@ -39,13 +39,12 @@ public class QueueRequest {
         
         String caminho = "matrizModelo/H-"+data.model+".csv";
         FloatMatrix model = CsvParser.readFloatMatrixFromCsvFile(caminho, ',');
-        var g = CsvParser.readFloatMatrixFromCsvFile("dados-teste/G-"+ data.g + ".csv", ',');
 
         AlgorithmResult algResult;
         if(data.algorithm == AlgorithmEnum.CGNE)
-            algResult = CGNE.run(model, data.imageSize, data.sampleLenght, data.sensorNum, g);
+            algResult = CGNE.run(model, data.imageSize, data.sampleLenght, data.sensorNum, new FloatMatrix(data.g));
         else
-            algResult = CGNR.run(model, data.imageSize, data.sampleLenght, data.sensorNum, g);
+            algResult = CGNR.run(model, data.imageSize, data.sampleLenght, data.sensorNum, new FloatMatrix(data.g));
         
         result.IterNum = algResult.iterNum;
         
