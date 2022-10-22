@@ -25,11 +25,12 @@ public class ImageController {
     
     @PostMapping("/image")
     public ImageResult post(@RequestBody ImageRequest request) {
-        request.algorithm = AlgorithmEnum.CGNE;
-        request.algorithm.valor = request.alg;
-        ResultWait wait = service.Enqueue(request);
+        if(request.alg == 1)
+            request.algorithm = AlgorithmEnum.CGNE;
+        else
+            request.algorithm = AlgorithmEnum.CGNR;
         
-        var result = wait.waitResult();
+        var result = service.Enqueue(request);
         
         return result;
     }

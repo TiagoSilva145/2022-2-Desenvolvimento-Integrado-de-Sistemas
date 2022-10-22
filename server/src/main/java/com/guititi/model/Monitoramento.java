@@ -12,12 +12,7 @@ public class Monitoramento {
     public double CpuUsagePercent;
     public double MemoryUsagePercent;
     public long FreeMemory;
-    public long FreePhisicalMemory;
-    public double CpuTime;
     public double SwapUsagePercent;
     public double ProcessCpuLoad;
-    public long CommitedMemory;
-    public long TotalMemory;
-    public long FreeSwap;
-    public long TotalSwap;
+    public int ThreadsRunning;
 }

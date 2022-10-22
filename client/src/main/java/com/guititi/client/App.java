@@ -4,8 +4,10 @@
  */
 package com.guititi.client;
 
+import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.guititi.model.ImageRequest;
+import com.guititi.model.ImageResult;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -24,13 +26,15 @@ import org.jblas.FloatMatrix;
  * @author guilherme
  */
 public class App {
-    HttpClient client;
+    Gson jsonSerializer = new Gson();
+    Faker faker = new Faker();
     private String caminho_arquivo = "dados/modelo";
     public App () {
-        client = HttpClient.newHttpClient();
+        
     }
     
-    public void Requisita() {
+    public ImageResult Requisita() {
+        var httpClient = HttpClient.newHttpClient();
         String json = fazRequisicao();
         var request = HttpRequest.newBuilder(
         URI.create("http://localhost:8080/image"))
@@ -39,15 +43,18 @@ public class App {
             .build();
 
          // use the client to send the request
-        HttpResponse response;
+        HttpResponse<String> response = null;
         try {
-            response = client.send(request, BodyHandlers.ofString());
+            response = httpClient.send(request, BodyHandlers.ofString());
             System.out.println(response.body());
+
         } catch (IOException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+        String body = response.body();
+        return jsonSerializer.fromJson(response.body(), ImageResult.class);
     }
     public String geraNome()
     {
@@ -72,7 +79,7 @@ public class App {
         
         ImageRequest req = new ImageRequest();
         
-        req.userId = geraNome();
+        req.userId = faker.name().firstName();
         req.model = Math.abs((aleatorio.nextInt())%2)+1;
         req.alg = Math.abs((aleatorio.nextInt())%2);
         int imagem = Math.abs((aleatorio.nextInt())%2)+1;
@@ -100,8 +107,11 @@ public class App {
             req.sensorNum = 64;
         }
         
-        Gson gson = new Gson();
-        return gson.toJson(req);
+        System.out.println("requisitando nome: " + req.userId
+                + " g: " + Integer.toString(req.model) 
+                + " alg: " + Integer.toString(req.alg));
+        
+        return jsonSerializer.toJson(req);
     }
     public float[][] ganhoSinal(int g, int model, String g_path)
     {

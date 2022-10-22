@@ -10,3 +10,4 @@ nbdist/
 testeBlasMaven/matrizModelo/*
 *.csv
 /client/target/
+.vscode/*
