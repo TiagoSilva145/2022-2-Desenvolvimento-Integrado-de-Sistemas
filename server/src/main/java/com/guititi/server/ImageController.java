@@ -30,7 +30,7 @@ public class ImageController {
         else
             request.algorithm = AlgorithmEnum.CGNR;
         
-        var result = service.Enqueue(request);
+        ImageResult result = service.Enqueue(request);
         
         return result;
     }

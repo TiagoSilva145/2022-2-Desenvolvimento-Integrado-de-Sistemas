@@ -15,8 +15,8 @@ public class Client {
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
-        var app = new App();
-        var tipos = new TiposRequisicao(() -> app.Requisita());
+        App app = new App();
+        TiposRequisicao tipos = new TiposRequisicao(() -> app.Requisita());
         
         Scanner scan = new Scanner(System.in);
         int opcao = -1;

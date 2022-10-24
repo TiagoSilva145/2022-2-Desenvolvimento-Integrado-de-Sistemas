@@ -34,9 +34,9 @@ public class App {
     }
     
     public ImageResult Requisita() {
-        var httpClient = HttpClient.newHttpClient();
+        HttpClient httpClient = HttpClient.newHttpClient();
         String json = fazRequisicao();
-        var request = HttpRequest.newBuilder(
+        HttpRequest request = HttpRequest.newBuilder(
         URI.create("http://localhost:8080/image"))
             .POST(BodyPublishers.ofString(json))
             .header("Content-Type", "application/json")
@@ -84,7 +84,8 @@ public class App {
         req.alg = Math.abs((aleatorio.nextInt())%2);
         int imagem = Math.abs((aleatorio.nextInt())%2)+1;
         String g_path = caminho_arquivo+Integer.toString(req.model)+"/"+"G-"+imagem+".csv";
-        System.out.println(g_path);
+        //System.out.println(g_path);
+        
         if(Math.abs((aleatorio.nextInt())%2) == 0) {
             req.g = CsvParser
                     .readFloatMatrixFromCsvFile(g_path, ',')
@@ -108,7 +109,8 @@ public class App {
         }
         
         System.out.println("requisitando nome: " + req.userId
-                + " g: " + Integer.toString(req.model) 
+                + " modelo: " + Integer.toString(req.model)
+                + " g:" + Integer.toString(imagem)
                 + " alg: " + Integer.toString(req.alg));
         
         return jsonSerializer.toJson(req);
@@ -148,7 +150,9 @@ public class App {
                 //pode dar errado aqui
                 float sinal = 100 + 1/20 * l * (float) Math.sqrt(l);
                 
+                
                 r.put(index, sinal);
+                r.put(index, r.get(index) * sinal);
             }
         }
         return r.toArray2();

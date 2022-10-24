@@ -35,7 +35,7 @@ public class QueueService {
     private final Object mapLock = new Object();
     
     public ImageResult Enqueue(ImageRequest data) {
-        var request = new QueueRequest(data);
+        QueueRequest request = new QueueRequest(data);
         QueueAdd(request);
         ResultWait wait = new ResultWait();
         MapPut(request.requestId, wait);
@@ -64,7 +64,7 @@ public class QueueService {
 
         monitor.ThreadsRunning.decrementAndGet();
 
-        var waited = MapPoll(request.requestId);
+        ResultWait waited = MapPoll(request.requestId);
         waited.result = request.result;
         waited.semaphore.release();
         

@@ -15,7 +15,7 @@ import org.jblas.FloatMatrix;
 public class CGNR {
     public static AlgorithmResult run(FloatMatrix model, int size, int s, int n, FloatMatrix g) {
         System.out.println("Executando CGNR");
-        var result = new AlgorithmResult();
+        AlgorithmResult result = new AlgorithmResult();
 
         FloatMatrix f = new FloatMatrix().zeros(1, size * size);
         FloatMatrix r = g;

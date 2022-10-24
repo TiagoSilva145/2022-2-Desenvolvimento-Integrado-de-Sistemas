@@ -27,7 +27,7 @@ public class MonitorService {
         long presumableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
         
         Monitoramento monitor = new Monitoramento();
-        monitor.CpuUsagePercent = osBean.getCpuLoad();
+        //monitor.CpuUsagePercent = osBean.getCpuLoad();
         monitor.MemoryUsagePercent = (double)allocatedMemory / (double)maxMemory;
         monitor.SwapUsagePercent = 1.0 - (double)osBean.getFreeSwapSpaceSize() / (double)osBean.getTotalSwapSpaceSize();
         monitor.FreeMemory = presumableFreeMemory;
