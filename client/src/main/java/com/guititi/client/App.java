@@ -95,6 +95,8 @@ public class App {
             req.g = ganhoSinal(imagem, req.model, g_path);
         }
         
+        req.g = ganhoSinal(imagem, req.model, g_path);
+        
         if(req.model == 1)
         {
             req.imageSize = 60;
@@ -150,8 +152,6 @@ public class App {
                 //pode dar errado aqui
                 float sinal = 100 + 1/20 * l * (float) Math.sqrt(l);
                 
-                
-                r.put(index, sinal);
                 r.put(index, r.get(index) * sinal);
             }
         }

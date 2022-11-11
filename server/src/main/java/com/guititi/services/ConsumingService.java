@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 public class ConsumingService {
     private Random random = new Random();
     private List<FloatMatrix> matrizes = new LinkedList<FloatMatrix>();
-    private String caminho_arquivo = "matrizModelo/modelo1/";
+    private String caminho_arquivo = "matrizModelo/H-1.csv";
+    private int alternar = 1;
+    
     public void ExecuteConsumingProcess(int num, int size) {
         float [][] matrix = new float[size][size];
         for(int i=0; i < size; i++) {
@@ -37,7 +39,15 @@ public class ConsumingService {
     }
     
     public void matrixAllocation() {
-        FloatMatrix modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo+"H-1.csv", ',');
+        FloatMatrix modelo;
+        if(alternar++ % 2 == 0) {
+            System.out.println("velho");
+            modelo = CsvParser.readFloatMatrixFromCsvFile(caminho_arquivo, ',');
+        }
+        else {
+            System.out.println("novo");
+            modelo = CsvParser.readModelMatrixFromCsvFile(caminho_arquivo, ',', 50816, 3600);
+        }
         matrizes.add(modelo);
     }
     public void matrixDeallocation() {

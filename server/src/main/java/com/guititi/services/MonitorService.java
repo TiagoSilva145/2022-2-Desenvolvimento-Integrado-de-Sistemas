@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MonitorService {
+    final long tamanhoH1 = 731750400L * 2L;
+    final long tamanhoH2 = 100454400L * 2L;
+    
+    long memoriaUtilizadaEstimada = 0;
+    
     public AtomicInteger ThreadsRunning = new AtomicInteger(0);
     private final long maxMemory = 4294967296L;
     public Monitoramento getStats() {
@@ -37,17 +42,39 @@ public class MonitorService {
         return monitor;
     }
     
-    public synchronized boolean CanRun() {
+    public synchronized boolean CanRun(int modelo) {
         
         Monitoramento m = getStats();
         
-        if(m.ThreadsRunning == 0)
+        if(m.ThreadsRunning == 0) {
+            memoriaUtilizadaEstimada += EstimaQuantidadeMemoria(modelo);
             return true;
-        
-
-        if(m.MemoryUsagePercent > 0.8)
+        }
+        if(EstimaQuantidadeMemoria(modelo) > maxMemory) {
             return false;
+        }
         
+        //if(m.MemoryUsagePercent > 0.8)
+        /*    return false;*/
+        memoriaUtilizadaEstimada += EstimaQuantidadeMemoria(modelo);
         return true;
+    }
+    
+    public synchronized void DecrementThreadsRunning(int modelo) {
+        memoriaUtilizadaEstimada -= EstimaQuantidadeMemoria(modelo);
+        ThreadsRunning.getAndDecrement();
+    }
+    
+    private long EstimaQuantidadeMemoria(int modelo) {
+        long memoriaEstimada = memoriaUtilizadaEstimada;
+        
+        if(modelo == 1) {
+            memoriaEstimada += tamanhoH1;
+        }
+        else {
+            memoriaEstimada += tamanhoH2;
+        }
+        
+        return memoriaEstimada;
     }
 }

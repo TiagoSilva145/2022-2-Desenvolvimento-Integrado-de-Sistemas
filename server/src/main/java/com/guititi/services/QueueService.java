@@ -39,7 +39,7 @@ public class QueueService {
         QueueAdd(request);
         ResultWait wait = new ResultWait();
         MapPut(request.requestId, wait);
-        if(monitor.CanRun()) {
+        if(monitor.CanRun(QueueFirstModel())) {
             new Thread(() -> Unqueue()).start();
         }
         else {
@@ -62,14 +62,14 @@ public class QueueService {
         } catch (InterruptedException ex) {
         }
 
-        monitor.ThreadsRunning.decrementAndGet();
+        monitor.DecrementThreadsRunning(request.data.model);
 
         ResultWait waited = MapPoll(request.requestId);
         waited.result = request.result;
         waited.semaphore.release();
         
         //Run next thread
-        if(monitor.CanRun()) {
+        if(monitor.CanRun(QueueFirstModel())) {
             Unqueue();
         }
         else {
@@ -86,7 +86,7 @@ public class QueueService {
             e.printStackTrace();
             return;
         }
-        if(monitor.CanRun()) {
+        if(monitor.CanRun(QueueFirstModel())) {
             Unqueue();
         }
         else {
@@ -106,6 +106,15 @@ public class QueueService {
             result = queue.poll();
         }
         return result;
+    }
+    
+    private int QueueFirstModel() {
+        int firstModel = 1;
+        synchronized (queueLock) {
+            if(queue.size() > 0)
+                firstModel = queue.element().data.model;
+        }
+        return firstModel;
     }
 
     private void MapPut(UUID id, ResultWait wait) {

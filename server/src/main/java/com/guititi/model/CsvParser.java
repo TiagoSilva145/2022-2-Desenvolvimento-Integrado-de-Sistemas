@@ -17,6 +17,8 @@ import org.jblas.FloatMatrix;
 
 public class CsvParser {
     public static FloatMatrix readFloatMatrixFromCsvFile(String matrixName, char separator) {
+        long start = System.currentTimeMillis();
+
         System.out.println("Carregando modelo " + matrixName);
         FloatMatrix matrix = null;
         List<float[]> matrixLines = new LinkedList<>();
@@ -52,7 +54,43 @@ public class CsvParser {
         }
         
         matrix = new FloatMatrix(grouped);
-        System.out.println("Carregado modelo " + matrixName);
+        
+        long finish = System.currentTimeMillis();
+        long timeElapsed = (finish - start);
+        System.out.println("Carregado modelo em " + Long.toString(timeElapsed) + "milissegundos " + matrixName);
+        return matrix;
+    }
+    
+    public static FloatMatrix readModelMatrixFromCsvFile(String matrixName, char separator, int rows, int columns) {
+        long start = System.currentTimeMillis();
+        System.out.println("Carregando modelo " + matrixName);
+        FloatMatrix matrix = null;
+        float[][] tempMatrix = new float[rows][columns];
+        try {
+            CSVParser parser = new CSVParserBuilder().withSeparator(separator).build();
+            CSVReader csvReader = new CSVReaderBuilder(new FileReader(new File(matrixName)))
+                                  .withCSVParser(parser)
+                                  .build();
+            
+            //Utiliza matriz pois o jblas só constroi FloatMatrix com uma matriz (1,n) 
+            //a partir de uma matriz
+            String[] values;
+            int i=0, j=0;
+            while ((values = csvReader.readNext()) != null) {
+                j=0;
+                for(String value : values) {
+                    tempMatrix[i][j++] = Float.valueOf(value);
+                }
+                i++;
+            }
+        } catch(Exception e) {
+            System.err.println(e);
+        }
+        
+        matrix = new FloatMatrix(tempMatrix);
+        long finish = System.currentTimeMillis();
+        long timeElapsed = (finish - start);
+        System.out.println("Carregado modelo em " + Long.toString(timeElapsed) + "milissegundos " + matrixName);
         return matrix;
     }
 }

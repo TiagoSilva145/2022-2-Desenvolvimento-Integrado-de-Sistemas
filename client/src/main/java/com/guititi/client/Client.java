@@ -25,7 +25,7 @@ public class Client {
             opcao = scan.nextInt();
             switch(opcao) {
                 case 1:
-                    new Thread(() -> tipos.Rajada(3, 3, 10000)).start();
+                    new Thread(() -> tipos.Rajada(5, 3, 2000)).start();
                     break;
                 case 2:
                     new Thread(() -> tipos.Padrao(5, 5000)).start();
