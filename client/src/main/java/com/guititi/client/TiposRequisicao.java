@@ -55,4 +55,8 @@ public class TiposRequisicao {
             }
         }
     }
+    
+    public void Unico() {
+        Padrao(1, 0);
+    }
 }

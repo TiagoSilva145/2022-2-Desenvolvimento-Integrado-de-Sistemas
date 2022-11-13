@@ -5,20 +5,28 @@
 package com.guititi.client;
 
 import com.github.javafaker.Faker;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.guititi.model.ImageRequest;
 import com.guititi.model.ImageResult;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.jblas.FloatMatrix;
 
 /**
@@ -54,23 +62,11 @@ public class App {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
         String body = response.body();
-        return jsonSerializer.fromJson(response.body(), ImageResult.class);
-    }
-    public String geraNome()
-    {
-        int leftLimit = 97; // letter 'a'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 10;
-        Random random = new Random();
-        StringBuilder buffer = new StringBuilder(targetStringLength);
-        for (int i = 0; i < targetStringLength; i++) {
-            int randomLimitedInt = leftLimit + (int) 
-              (random.nextFloat() * (rightLimit - leftLimit + 1));
-            buffer.append((char) randomLimitedInt);
-        }
-        String generatedString = buffer.toString();
+        ImageResult result = jsonSerializer.fromJson(response.body(), ImageResult.class);
         
-        return generatedString;
+        BaixarImagem(result);
+        new Relatorio(result).CriarRelatorio();
+        return result;
     }
     
     public String fazRequisicao()
@@ -156,5 +152,19 @@ public class App {
             }
         }
         return r.toArray2();
+    }
+    
+    private void BaixarImagem(ImageResult result) {
+        try {
+            URL url = new URL("http://localhost:8080/image/" + result.imagePath);
+            FileUtils.copyURLToFile(
+                url, 
+                new File("relatorios/imagens/"+result.imagePath));
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 }

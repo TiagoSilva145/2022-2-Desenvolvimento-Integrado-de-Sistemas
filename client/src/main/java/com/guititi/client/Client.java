@@ -33,6 +33,9 @@ public class Client {
                 case 3:
                     new Thread(() -> tipos.Aleatorio(5, 10000)).start();
                     break;
+                case 4:
+                    new Thread(() -> tipos.Unico()).start();
+                    break;
             }
         } while(opcao != 0);
     }
@@ -42,6 +45,7 @@ public class Client {
         System.out.println("0 - Sair");
         System.out.println("1 - Rajada");
         System.out.println("2 - Padrao");
-        System.out.println("3 - Aleatorio\n");
+        System.out.println("3 - Aleatorio");
+        System.out.println("4 - Unico\n");
     }
 }

@@ -11,3 +11,4 @@ testeBlasMaven/matrizModelo/*
 *.csv
 /client/target/
 .vscode/*
+client/relatorios/*
