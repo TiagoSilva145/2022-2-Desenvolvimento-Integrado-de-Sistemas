@@ -12,3 +12,7 @@ testeBlasMaven/matrizModelo/*
 /client/target/
 .vscode/*
 client/relatorios/*
+
+*.class
+
+server/images/

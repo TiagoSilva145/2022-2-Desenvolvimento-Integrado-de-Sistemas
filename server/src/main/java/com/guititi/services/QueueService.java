@@ -29,7 +29,7 @@ public class QueueService {
     private MonitorService monitor;
     
     private Queue<QueueRequest> queue = new LinkedList<>();
-    Map<UUID, ResultWait> map = new HashMap<UUID, ResultWait>();
+    Map<UUID, ResultWait> map = new HashMap<>();
 
     private final Object queueLock = new Object();
     private final Object mapLock = new Object();
@@ -37,6 +37,7 @@ public class QueueService {
     public ImageResult Enqueue(ImageRequest data) {
         QueueRequest request = new QueueRequest(data);
         QueueAdd(request);
+        
         ResultWait wait = new ResultWait();
         MapPut(request.requestId, wait);
         if(monitor.CanRun(QueueFirstModel())) {
@@ -78,10 +79,12 @@ public class QueueService {
     }
 
     private void TryRun(int seconds) {
+        if(QueueIsEmpty())
+            return;
         System.out.println("Não pode rodar agora, aguardando " + 
-                Integer.toString(seconds) + "segundos para tentar novamente");
+                Integer.toString(seconds) + " segundos para tentar novamente");
         try {
-            Thread.sleep(seconds);
+            Thread.sleep(seconds * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
             return;
@@ -108,14 +111,24 @@ public class QueueService {
         return result;
     }
     
-    private int QueueFirstModel() {
-        int firstModel = 1;
+    private ImageRequest QueueFirstModel() {
+        ImageRequest firstModel = null;
         synchronized (queueLock) {
-            if(queue.size() > 0)
-                firstModel = queue.element().data.model;
+            if(!queue.isEmpty())
+                firstModel = queue.element().data;
         }
         return firstModel;
     }
+    
+    private Boolean QueueIsEmpty() {
+        Boolean isEmpty = false;
+        synchronized (queueLock) {
+            if(queue.isEmpty())
+                isEmpty = true;
+        }
+        
+        return isEmpty;
+    } 
 
     private void MapPut(UUID id, ResultWait wait) {
         synchronized(mapLock) {

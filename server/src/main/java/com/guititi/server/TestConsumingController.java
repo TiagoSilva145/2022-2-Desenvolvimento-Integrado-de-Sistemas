@@ -9,7 +9,11 @@ package com.guititi.server;
  * @author guilherme
  */
 import com.guititi.model.ConsumingRequest;
+import com.guititi.model.ConsumoMemoCPU;
 import com.guititi.services.ConsumingService;
+import com.guititi.services.MonitorService;
+import java.util.ArrayList;
+import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestConsumingController {
     @Autowired
     ConsumingService service;
+    
+    @Autowired
+    MonitorService monitor;
     
     @GetMapping("/consume")
     public String index() {
@@ -42,5 +49,16 @@ public class TestConsumingController {
     public String deallocate() {
         service.matrixDeallocation();
         return "deallocated";
+    }
+    
+    @PostMapping("/consume/relatorio")
+    public void relatorio() {
+        Random rd = new Random();
+        ArrayList<ConsumoMemoCPU> con = new ArrayList<>();
+        for(int i=0; i < 30; i++) {
+            con.add(new ConsumoMemoCPU(rd.nextDouble(), rd.nextDouble()));
+        }
+        
+        monitor.GerarRelatorio(con);
     }
 }

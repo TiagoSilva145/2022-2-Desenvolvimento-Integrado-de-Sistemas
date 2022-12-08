@@ -78,9 +78,8 @@ public class App {
         req.userId = faker.name().firstName();
         req.model = Math.abs((aleatorio.nextInt())%2)+1;
         req.alg = Math.abs((aleatorio.nextInt())%2);
-        int imagem = Math.abs((aleatorio.nextInt())%2)+1;
+        int imagem = Math.abs((aleatorio.nextInt())%3)+1;
         String g_path = caminho_arquivo+Integer.toString(req.model)+"/"+"G-"+imagem+".csv";
-        //System.out.println(g_path);
         
         if(Math.abs((aleatorio.nextInt())%2) == 0) {
             req.g = CsvParser

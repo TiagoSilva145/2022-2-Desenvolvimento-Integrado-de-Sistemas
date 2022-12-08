@@ -24,7 +24,7 @@ public class CGNR {
         
        float erro = 1;
        
-       while(erro > 0.0001)
+       while(erro > 0.0001 && result.iterNum < 30)
        {
            FloatMatrix w = model.mmul(p);
            

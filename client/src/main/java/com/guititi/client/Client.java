@@ -36,6 +36,8 @@ public class Client {
                 case 4:
                     new Thread(() -> tipos.Unico()).start();
                     break;
+                default:
+                    break;
             }
         } while(opcao != 0);
     }
