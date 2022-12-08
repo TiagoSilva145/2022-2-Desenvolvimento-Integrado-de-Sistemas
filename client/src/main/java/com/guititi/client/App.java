@@ -90,8 +90,6 @@ public class App {
             req.g = ganhoSinal(imagem, req.model, g_path);
         }
         
-        req.g = ganhoSinal(imagem, req.model, g_path);
-        
         if(req.model == 1)
         {
             req.imageSize = 60;

@@ -41,10 +41,10 @@ public class MonitorService {
     
     public AtomicInteger ThreadsRunning = new AtomicInteger(0);
     
-    OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
-        OperatingSystemMXBean.class);
-    MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    private final OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+    private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
     private final long maxMemory = 4294967296L;
+    
     public Monitoramento getStats() {
         double usedMemory = (double)memoryMXBean.getNonHeapMemoryUsage().getUsed() +
                 (double)memoryMXBean.getHeapMemoryUsage().getUsed();      
@@ -82,8 +82,6 @@ public class MonitorService {
             return false;
         }
         
-        //if(m.MemoryUsagePercent > 0.8)
-        /*    return false;*/
         memoriaUtilizadaEstimada += EstimaQuantidadeMemoria(request.model);
         return true;
     }
@@ -126,6 +124,7 @@ public class MonitorService {
     }
     
     public void GerarRelatorio(ArrayList<ConsumoMemoCPU> lista) {
+        System.out.println("Gerando grafico de desempenho do servidor");
         XYChart chart = new XYChart(1500, 1000);
         chart.setTitle("Relatório de consumo");
         chart.setXAxisTitle("Segundos");
@@ -143,15 +142,14 @@ public class MonitorService {
             yCPU[i] = lista.get(i).CPU;
             yMemoria[i] = lista.get(i).Memoria;
         }
-        // Create Chart
+
         chart.addSeries("CPU", xData, yCPU);
         chart.addSeries("Memoria", xData, yMemoria);
         
         DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         try {
-            // Save it
-            BitmapEncoder.saveBitmap(chart, "images/graf"+formater.format(now), BitmapFormat.PNG);
+            BitmapEncoder.saveBitmap(chart, "graficos/desempenho-"+formater.format(now), BitmapFormat.PNG);
         } catch (IOException ex) {
             Logger.getLogger(MonitorService.class.getName()).log(Level.SEVERE, null, ex);
         }
