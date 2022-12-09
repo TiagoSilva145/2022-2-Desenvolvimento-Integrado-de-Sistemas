@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 public class QueueService {
     @Autowired
     private MonitorService monitor;
+    @Autowired
+    MatrixAllocService matrixService;
     
     private Queue<QueueRequest> queue = new LinkedList<>();
     Map<UUID, ResultWait> map = new HashMap<>();
@@ -35,7 +37,7 @@ public class QueueService {
     private final Object mapLock = new Object();
     
     public ImageResult Enqueue(ImageRequest data) {
-        QueueRequest request = new QueueRequest(data);
+        QueueRequest request = new QueueRequest(data, matrixService);
         QueueAdd(request);
         
         ResultWait wait = new ResultWait();

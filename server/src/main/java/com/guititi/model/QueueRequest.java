@@ -7,6 +7,7 @@ package com.guititi.model;
 import cm.guititi.algoritmos.CGNE;
 import cm.guititi.algoritmos.CGNR;
 import cm.guititi.algoritmos.Util;
+import com.guititi.services.MatrixAllocService;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
@@ -17,7 +18,7 @@ import org.jblas.FloatMatrix;
  * @author guilherme
  */
 public class QueueRequest {
-    public QueueRequest(ImageRequest dados) {
+    public QueueRequest(ImageRequest dados, MatrixAllocService matrixService) {
         requestId = UUID.randomUUID();
         this.data = dados;
         this.thread = new Thread(() -> this.threadFunc());
@@ -30,6 +31,7 @@ public class QueueRequest {
             modelRows = 27904;
             modelColumns = 900;
         }
+        this.mService = matrixService;
     }
     
     public UUID requestId;
@@ -38,6 +40,7 @@ public class QueueRequest {
     public ImageResult result;
     private int modelRows;
     private int modelColumns;
+    private MatrixAllocService mService;
 
     
     private ImageResult threadFunc() {  
@@ -47,8 +50,7 @@ public class QueueRequest {
         
         System.out.println("Executando requisição " + result.user + "-" + result.imageId);
         
-        String caminho = "matrizModelo/H-"+data.model+".csv";
-        FloatMatrix model = CsvParser.readModelMatrixFromCsvFile(caminho, ',', modelRows, modelColumns);
+        FloatMatrix model = mService.getMatrix(data.model);
 
         AlgorithmResult algResult;
         if(data.algorithm == AlgorithmEnum.CGNE)
@@ -67,7 +69,8 @@ public class QueueRequest {
         System.out.println("Finalizou requisição " + result.user + "-" + result.imageId + "em " 
                 + Long.toString(result.elapsedSeconds) + " milissegundos");
         model = null;
-        System.gc();
+        
+        mService.DecrementThread(data.model);
         
         return result;
     } 
