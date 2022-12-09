@@ -81,6 +81,9 @@ public class MonitorService {
         if(EstimaQuantidadeMemoria(request.model) > maxMemory) {
             return false;
         }
+        if(m.MemoryUsagePercent > 0.8) {
+            return false;
+        }
         
         memoriaUtilizadaEstimada += EstimaQuantidadeMemoria(request.model);
         return true;
